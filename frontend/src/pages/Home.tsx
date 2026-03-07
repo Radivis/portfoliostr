@@ -39,19 +39,11 @@ function Home() {
             mb: 4,
           }}
         >
-          portfoliostr
+          My Portfolio
         </Typography>
 
         <Typography variant="body1" sx={{ ...bodyParagraphSx, mb: 2 }}>
-          This project evolved from a personal learning project based on the book "From Zero to Production in Rust" by Luca Palmieri. Instead of statically rendered HTML pages, it features a Single Page Application powered by React.
-        </Typography>
-
-        <Typography variant="body1" sx={{ ...bodyParagraphSx, mb: 2 }}>
-          In addition to acting as mailing list management app, it also features a simple blog.
-        </Typography>
-
-        <Typography variant="body1" sx={{ ...bodyParagraphSx, mb: 4 }}>
-          This project is fully open source and can be used as template for other projects.
+          This is a simple portfolio page based on Portfoliostr that I use to showcase my work.
         </Typography>
         <SubscribeForm />
       </Container>
