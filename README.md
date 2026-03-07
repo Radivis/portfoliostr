@@ -1,7 +1,17 @@
 # Portfoliostr
 A lightweight web CMS for making simple portfolio pages* and cross-posting* to blog, mailing lists, and socials* like X* and Nostr*
 
-* Feature is planned, but not implemented, yet.
+\* Feature is planned, but not implemented, yet.
+
+## Features
+
+- Blogging with a Markdown editor
+- Sending newsletters via Postmark (Registration required to get an API key)
+- Drafts and edits are cached to local storage
+- Welcome page with newsletter subscription form (double opt-in)
+- Dark Mode
+- Easy deployment via Docker Compose
+- Awesome logging integration via Grafana
 
 ## Deployment
 
@@ -198,20 +208,14 @@ For a better log viewing experience during local development:
 
 5. Use **Live** mode (button in top right) for real-time log streaming
 
-## Improvements
-Some improvements over the solutions from the book
+### Roadmap
 
-- Switched to a React front-end
-- Switched from actix-web to Axum
-- Integration test logs are written into per test logfiles when run via nextest
-- The TestApp struct is refactored into two versions: One without user, and one with a user
-- Added basic blogging features
-- Added unsubscribe functionality
-- Added a nice start page
-- Added Grafana UI for logs with Loki and Promtail in the backend
-
-## Caveats
-- Deployment was optimized for Docker Compose to enable cheap and simple pre-packaged deployment, but using this deployment route breaks the nice automatic CD pipeline using Digital Ocean described in the book.
+- Unify blog posting and newsletter sending as releasing articles with different release channels
+- Static page management
+- Import from WordPress
+- Posting to Nostr
+- Posting to X
+- Portfolio carousel
 
 ### Future Options
 - Refactor to Tailwind + shadcn/ui. Reason: MUI Update 6 -> 7 was a complete and utter failure.
