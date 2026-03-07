@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react'
+import { useState, useEffect, useRef, FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import {
@@ -9,14 +9,33 @@ import {
   Box,
   Alert,
   CircularProgress,
+  Snackbar,
 } from '@mui/material'
 import { apiRequest } from '../api/client'
+import { useNewsletterDraftStore } from '../stores/newsletterDraftStore'
 
 function AdminNewsletter() {
-  const [title, setTitle] = useState('')
-  const [htmlContent, setHtmlContent] = useState('')
-  const [textContent, setTextContent] = useState('')
+  const title = useNewsletterDraftStore((s) => s.title)
+  const htmlContent = useNewsletterDraftStore((s) => s.htmlContent)
+  const textContent = useNewsletterDraftStore((s) => s.textContent)
+  const setTitle = useNewsletterDraftStore((s) => s.setTitle)
+  const setHtmlContent = useNewsletterDraftStore((s) => s.setHtmlContent)
+  const setTextContent = useNewsletterDraftStore((s) => s.setTextContent)
+  const reset = useNewsletterDraftStore((s) => s.reset)
+
   const [idempotencyKey] = useState(() => crypto.randomUUID())
+  const [showDraftRestoredToast, setShowDraftRestoredToast] = useState(false)
+  const mountTimeRef = useRef(Date.now())
+  const hasShownDraftRestoredToast = useRef(false)
+
+  useEffect(() => {
+    const hasContent = title || htmlContent || textContent
+    const isLikelyFromCache = Date.now() - mountTimeRef.current < 500
+    if (hasContent && isLikelyFromCache && !hasShownDraftRestoredToast.current) {
+      hasShownDraftRestoredToast.current = true
+      setShowDraftRestoredToast(true)
+    }
+  }, [title, htmlContent, textContent])
 
   const newsletterMutation = useMutation({
     mutationFn: async (data: {
@@ -31,10 +50,7 @@ function AdminNewsletter() {
       })
     },
     onSuccess: () => {
-      // Reset form after successful submission
-      setTitle('')
-      setHtmlContent('')
-      setTextContent('')
+      reset()
     },
   })
 
@@ -121,6 +137,13 @@ function AdminNewsletter() {
           </Box>
         </form>
       </Paper>
+      <Snackbar
+        open={showDraftRestoredToast}
+        autoHideDuration={4000}
+        onClose={() => setShowDraftRestoredToast(false)}
+        message="Draft restored from cache"
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      />
     </Box>
   )
 }

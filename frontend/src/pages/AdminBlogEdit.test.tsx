@@ -6,6 +6,7 @@ import AdminBlogEdit from './AdminBlogEdit'
 import * as blogApi from '../api/blog'
 import type { BlogPost } from '../api/blog'
 import * as ReactRouter from 'react-router-dom'
+import { useBlogDraftStore } from '../stores/blogDraftStore'
 
 // Mock the blog API
 vi.mock('../api/blog', () => ({
@@ -53,6 +54,7 @@ describe('AdminBlogEdit - Create Mode', () => {
     vi.clearAllMocks()
     mockNavigate.mockClear()
     vi.mocked(ReactRouter.useParams).mockReturnValue({ id: 'new' })
+    useBlogDraftStore.setState({ drafts: {} })
   })
 
   it('renders "Create New Blog Post" title', () => {
@@ -84,6 +86,7 @@ describe('AdminBlogEdit - Edit Mode', () => {
     vi.clearAllMocks()
     mockNavigate.mockClear()
     vi.mocked(ReactRouter.useParams).mockReturnValue({ id: '123' })
+    useBlogDraftStore.setState({ drafts: {} })
   })
 
   it('renders "Edit Blog Post" title', async () => {

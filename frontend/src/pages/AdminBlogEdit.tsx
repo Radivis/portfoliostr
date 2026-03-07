@@ -13,6 +13,7 @@ import {
   MenuItem,
   CircularProgress,
   Alert,
+  Snackbar,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
@@ -30,6 +31,7 @@ import {
   UpdateBlogPost,
   type BlogPostStatus,
 } from '../api/blog'
+import { useBlogDraftStore } from '../stores/blogDraftStore'
 import { useTheme } from '../contexts/ThemeContext'
 import { DARK_THEME_EDITOR } from '../theme'
 import { ROUTES } from '../constants/routes'
@@ -59,28 +61,50 @@ function AdminBlogEdit() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { mode: currentTheme } = useTheme()
+  const postId = id ?? 'new'
   const isEditMode = id !== undefined && id !== 'new'
 
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
-  const [status, setStatus] = useState<BlogPostStatus>('draft')
-  const [previewTheme, setPreviewTheme] = useState<'light' | 'dark'>(currentTheme)
-  const [isPreviewActive, setIsPreviewActive] = useState(false)
-  const editorRef = useRef<EasyMDE | null>(null)
+  const persistedDraft = useBlogDraftStore((s) => s.getDraft(postId))
+  const upsertDraft = useBlogDraftStore((s) => s.upsertDraft)
+  const clearDraft = useBlogDraftStore((s) => s.clearDraft)
+
+  const hasPersistedDraft = !!persistedDraft
 
   const { data: post, isLoading, error } = useQuery({
     queryKey: BLOG_QUERY_KEYS.adminPost(id!),
     queryFn: () => fetchAdminPost(id!),
-    enabled: isEditMode,
+    enabled: isEditMode && !hasPersistedDraft,
   })
 
+  const [previewTheme, setPreviewTheme] = useState<'light' | 'dark'>(currentTheme)
+  const [isPreviewActive, setIsPreviewActive] = useState(false)
+  const [showDraftRestoredToast, setShowDraftRestoredToast] = useState(false)
+  const editorRef = useRef<EasyMDE | null>(null)
+  const loadedFromApiPostIdRef = useRef<string | null>(null)
+
+  const draft = persistedDraft ?? post
+  const title = draft?.title ?? ''
+  const content = draft?.content ?? ''
+  const status = draft?.status ?? 'draft'
+
   useEffect(() => {
-    if (post) {
-      setTitle(post.title)
-      setContent(post.content)
-      setStatus(post.status)
+    if (post && !hasPersistedDraft) {
+      upsertDraft(postId, {
+        title: post.title,
+        content: post.content,
+        status: post.status,
+      })
+      loadedFromApiPostIdRef.current = postId
     }
-  }, [post])
+  }, [post, postId, hasPersistedDraft, upsertDraft])
+
+  useEffect(() => {
+    const isRestoredFromCache =
+      hasPersistedDraft && loadedFromApiPostIdRef.current !== postId
+    if (isRestoredFromCache) {
+      setShowDraftRestoredToast(true)
+    }
+  }, [hasPersistedDraft, postId])
 
   // Update preview theme when current theme changes
   useEffect(() => {
@@ -90,6 +114,7 @@ function AdminBlogEdit() {
   const createMutation = useMutation({
     mutationFn: createPost,
     onSuccess: () => {
+      clearDraft(postId)
       queryClient.invalidateQueries({ queryKey: BLOG_QUERY_KEYS.adminList })
       navigate(ROUTES.adminBlog)
     },
@@ -98,6 +123,7 @@ function AdminBlogEdit() {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateBlogPost }) => updatePost(id, data),
     onSuccess: () => {
+      clearDraft(postId)
       queryClient.invalidateQueries({ queryKey: BLOG_QUERY_KEYS.adminList })
       queryClient.invalidateQueries({ queryKey: BLOG_QUERY_KEYS.adminPost(id!) })
       navigate(ROUTES.adminBlog)
@@ -121,6 +147,7 @@ function AdminBlogEdit() {
   }
 
   const handleCancel = () => {
+    clearDraft(postId)
     navigate(ROUTES.adminBlog)
   }
 
@@ -128,14 +155,14 @@ function AdminBlogEdit() {
   useEffect(() => {
     const checkPreviewState = () => {
       if (editorRef.current) {
-        const previewElement = editorRef.current.codemirror.getWrapperElement().parentElement?.querySelector('.editor-preview-active, .editor-preview-active-side')
+        const previewElement = editorRef.current.codemirror
+          .getWrapperElement()
+          .parentElement?.querySelector('.editor-preview-active, .editor-preview-active-side')
         setIsPreviewActive(!!previewElement)
       }
     }
 
-    // Check periodically (SimpleMDE doesn't have direct mode change events)
     const interval = setInterval(checkPreviewState, PREVIEW_STATE_CHECK_INTERVAL_MS)
-    
     return () => clearInterval(interval)
   }, [])
 
@@ -202,7 +229,7 @@ function AdminBlogEdit() {
           <TextField
             label="Title"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => upsertDraft(postId, { title: e.target.value })}
             fullWidth
             required
             margin="normal"
@@ -213,7 +240,7 @@ function AdminBlogEdit() {
             <InputLabel>Status</InputLabel>
             <Select
               value={status}
-              onChange={(e) => setStatus(e.target.value as BlogPostStatus)}
+              onChange={(e) => upsertDraft(postId, { status: e.target.value as BlogPostStatus })}
               label="Status"
               disabled={isSubmitting}
             >
@@ -307,7 +334,7 @@ function AdminBlogEdit() {
             >
               <SimpleMDE
                 value={content}
-                onChange={setContent}
+                onChange={(value) => upsertDraft(postId, { content: value })}
                 options={editorOptions}
                 getMdeInstance={getMdeInstance}
               />
@@ -334,6 +361,13 @@ function AdminBlogEdit() {
           </Box>
         </form>
       </Paper>
+      <Snackbar
+        open={showDraftRestoredToast}
+        autoHideDuration={4000}
+        onClose={() => setShowDraftRestoredToast(false)}
+        message="Draft restored from cache"
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      />
     </Box>
   )
 }
