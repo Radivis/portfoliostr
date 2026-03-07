@@ -6,6 +6,7 @@ import AdminBlogEdit from './AdminBlogEdit'
 import * as blogApi from '../api/blog'
 import type { BlogPost } from '../api/blog'
 import * as ReactRouter from 'react-router-dom'
+import { useBlogDraftStore } from '../stores/blogDraftStore'
 
 // Mock the blog API
 vi.mock('../api/blog', () => ({
@@ -53,6 +54,7 @@ describe('AdminBlogEdit - Create Mode', () => {
     vi.clearAllMocks()
     mockNavigate.mockClear()
     vi.mocked(ReactRouter.useParams).mockReturnValue({ id: 'new' })
+    useBlogDraftStore.setState({ drafts: {} })
   })
 
   it('renders "Create New Blog Post" title', () => {
@@ -77,6 +79,18 @@ describe('AdminBlogEdit - Create Mode', () => {
 
     expect(mockNavigate).toHaveBeenCalledWith('/admin/blog')
   })
+
+  it('shows draft restored toast when persisted draft exists for new post', () => {
+    useBlogDraftStore.setState({
+      drafts: {
+        new: { title: 'Cached', content: 'Cached content', status: 'draft' },
+      },
+    })
+
+    render(<AdminBlogEdit />)
+
+    expect(screen.getByText('Draft restored from cache')).toBeInTheDocument()
+  })
 })
 
 describe('AdminBlogEdit - Edit Mode', () => {
@@ -84,6 +98,7 @@ describe('AdminBlogEdit - Edit Mode', () => {
     vi.clearAllMocks()
     mockNavigate.mockClear()
     vi.mocked(ReactRouter.useParams).mockReturnValue({ id: '123' })
+    useBlogDraftStore.setState({ drafts: {} })
   })
 
   it('renders "Edit Blog Post" title', async () => {
@@ -171,5 +186,21 @@ describe('AdminBlogEdit - Edit Mode', () => {
     await waitFor(() => {
       expect(screen.getByText(errorMessage)).toBeInTheDocument()
     })
+  })
+
+  it('shows draft restored toast when persisted draft exists for edit post', () => {
+    useBlogDraftStore.setState({
+      drafts: {
+        '123': {
+          title: 'Cached Edit',
+          content: 'Cached edit content',
+          status: 'draft',
+        },
+      },
+    })
+
+    render(<AdminBlogEdit />)
+
+    expect(screen.getByText('Draft restored from cache')).toBeInTheDocument()
   })
 })

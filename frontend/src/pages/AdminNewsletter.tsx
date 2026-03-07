@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import {
@@ -11,12 +11,33 @@ import {
   CircularProgress,
 } from '@mui/material'
 import { apiRequest } from '../api/client'
+import { useNewsletterDraftStore } from '../stores/newsletterDraftStore'
+import { DraftRestoredSnackbar } from '../components/DraftRestoredSnackbar'
 
 function AdminNewsletter() {
-  const [title, setTitle] = useState('')
-  const [htmlContent, setHtmlContent] = useState('')
-  const [textContent, setTextContent] = useState('')
+  const title = useNewsletterDraftStore((s) => s.title)
+  const htmlContent = useNewsletterDraftStore((s) => s.htmlContent)
+  const textContent = useNewsletterDraftStore((s) => s.textContent)
+  const setTitle = useNewsletterDraftStore((s) => s.setTitle)
+  const setHtmlContent = useNewsletterDraftStore((s) => s.setHtmlContent)
+  const setTextContent = useNewsletterDraftStore((s) => s.setTextContent)
+  const reset = useNewsletterDraftStore((s) => s.reset)
+
   const [idempotencyKey] = useState(() => crypto.randomUUID())
+  const [showDraftRestoredToast, setShowDraftRestoredToast] = useState(false)
+
+  useEffect(() => {
+    const unsubscribe = useNewsletterDraftStore.persist.onFinishHydration(
+      (state) => {
+        const hasContentFromRehydration =
+          !!state.title || !!state.htmlContent || !!state.textContent
+        if (hasContentFromRehydration) {
+          setShowDraftRestoredToast(true)
+        }
+      }
+    )
+    return unsubscribe
+  }, [])
 
   const newsletterMutation = useMutation({
     mutationFn: async (data: {
@@ -31,10 +52,7 @@ function AdminNewsletter() {
       })
     },
     onSuccess: () => {
-      // Reset form after successful submission
-      setTitle('')
-      setHtmlContent('')
-      setTextContent('')
+      reset()
     },
   })
 
@@ -121,6 +139,10 @@ function AdminNewsletter() {
           </Box>
         </form>
       </Paper>
+      <DraftRestoredSnackbar
+        open={showDraftRestoredToast}
+        onClose={() => setShowDraftRestoredToast(false)}
+      />
     </Box>
   )
 }
