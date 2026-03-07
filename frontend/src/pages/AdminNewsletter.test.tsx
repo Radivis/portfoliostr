@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { render } from '../test-utils/test-utils'
 import AdminNewsletter from './AdminNewsletter'
@@ -92,6 +92,27 @@ describe('AdminNewsletter', () => {
       expect(useNewsletterDraftStore.getState().title).toBe('')
       expect(useNewsletterDraftStore.getState().htmlContent).toBe('')
       expect(useNewsletterDraftStore.getState().textContent).toBe('')
+    })
+  })
+
+  it('shows draft restored toast when store has content from rehydration', async () => {
+    const persistedState = {
+      state: {
+        title: 'Cached Newsletter',
+        htmlContent: '<p>Cached HTML</p>',
+        textContent: 'Cached plain text',
+      },
+    }
+    localStorage.setItem('newsletter-draft', JSON.stringify(persistedState))
+
+    render(<AdminNewsletter />)
+
+    await act(async () => {
+      await useNewsletterDraftStore.persist.rehydrate()
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Draft restored from cache')).toBeInTheDocument()
     })
   })
 })

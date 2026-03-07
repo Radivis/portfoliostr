@@ -79,6 +79,18 @@ describe('AdminBlogEdit - Create Mode', () => {
 
     expect(mockNavigate).toHaveBeenCalledWith('/admin/blog')
   })
+
+  it('shows draft restored toast when persisted draft exists for new post', () => {
+    useBlogDraftStore.setState({
+      drafts: {
+        new: { title: 'Cached', content: 'Cached content', status: 'draft' },
+      },
+    })
+
+    render(<AdminBlogEdit />)
+
+    expect(screen.getByText('Draft restored from cache')).toBeInTheDocument()
+  })
 })
 
 describe('AdminBlogEdit - Edit Mode', () => {
@@ -174,5 +186,21 @@ describe('AdminBlogEdit - Edit Mode', () => {
     await waitFor(() => {
       expect(screen.getByText(errorMessage)).toBeInTheDocument()
     })
+  })
+
+  it('shows draft restored toast when persisted draft exists for edit post', () => {
+    useBlogDraftStore.setState({
+      drafts: {
+        '123': {
+          title: 'Cached Edit',
+          content: 'Cached edit content',
+          status: 'draft',
+        },
+      },
+    })
+
+    render(<AdminBlogEdit />)
+
+    expect(screen.getByText('Draft restored from cache')).toBeInTheDocument()
   })
 })

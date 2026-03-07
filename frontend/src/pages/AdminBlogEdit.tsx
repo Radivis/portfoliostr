@@ -13,7 +13,6 @@ import {
   MenuItem,
   CircularProgress,
   Alert,
-  Snackbar,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
@@ -32,6 +31,7 @@ import {
   type BlogPostStatus,
 } from '../api/blog'
 import { useBlogDraftStore } from '../stores/blogDraftStore'
+import { DraftRestoredSnackbar } from '../components/DraftRestoredSnackbar'
 import { useTheme } from '../contexts/ThemeContext'
 import { DARK_THEME_EDITOR } from '../theme'
 import { ROUTES } from '../constants/routes'
@@ -70,6 +70,7 @@ function AdminBlogEdit() {
 
   const hasPersistedDraft = !!persistedDraft
 
+  // TODO: Add "refresh from server" logic when hydrating from cache, once the app supports multiple editors.
   const { data: post, isLoading, error } = useQuery({
     queryKey: BLOG_QUERY_KEYS.adminPost(id!),
     queryFn: () => fetchAdminPost(id!),
@@ -361,12 +362,9 @@ function AdminBlogEdit() {
           </Box>
         </form>
       </Paper>
-      <Snackbar
+      <DraftRestoredSnackbar
         open={showDraftRestoredToast}
-        autoHideDuration={4000}
         onClose={() => setShowDraftRestoredToast(false)}
-        message="Draft restored from cache"
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
     </Box>
   )

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, FormEvent } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import {
@@ -9,10 +9,10 @@ import {
   Box,
   Alert,
   CircularProgress,
-  Snackbar,
 } from '@mui/material'
 import { apiRequest } from '../api/client'
 import { useNewsletterDraftStore } from '../stores/newsletterDraftStore'
+import { DraftRestoredSnackbar } from '../components/DraftRestoredSnackbar'
 
 function AdminNewsletter() {
   const title = useNewsletterDraftStore((s) => s.title)
@@ -25,17 +25,19 @@ function AdminNewsletter() {
 
   const [idempotencyKey] = useState(() => crypto.randomUUID())
   const [showDraftRestoredToast, setShowDraftRestoredToast] = useState(false)
-  const mountTimeRef = useRef(Date.now())
-  const hasShownDraftRestoredToast = useRef(false)
 
   useEffect(() => {
-    const hasContent = title || htmlContent || textContent
-    const isLikelyFromCache = Date.now() - mountTimeRef.current < 500
-    if (hasContent && isLikelyFromCache && !hasShownDraftRestoredToast.current) {
-      hasShownDraftRestoredToast.current = true
-      setShowDraftRestoredToast(true)
-    }
-  }, [title, htmlContent, textContent])
+    const unsubscribe = useNewsletterDraftStore.persist.onFinishHydration(
+      (state) => {
+        const hasContentFromRehydration =
+          !!state.title || !!state.htmlContent || !!state.textContent
+        if (hasContentFromRehydration) {
+          setShowDraftRestoredToast(true)
+        }
+      }
+    )
+    return unsubscribe
+  }, [])
 
   const newsletterMutation = useMutation({
     mutationFn: async (data: {
@@ -137,12 +139,9 @@ function AdminNewsletter() {
           </Box>
         </form>
       </Paper>
-      <Snackbar
+      <DraftRestoredSnackbar
         open={showDraftRestoredToast}
-        autoHideDuration={4000}
         onClose={() => setShowDraftRestoredToast(false)}
-        message="Draft restored from cache"
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
     </Box>
   )
