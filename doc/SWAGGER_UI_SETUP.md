@@ -36,7 +36,7 @@ export function ApiDocs() {
           API Documentation
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Interactive documentation for the Zero2Prod API.
+          Interactive documentation for the Portfoliostr API.
         </Typography>
       </Paper>
       

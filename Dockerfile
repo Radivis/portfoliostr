@@ -15,7 +15,7 @@ COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
 ENV SQLX_OFFLINE=true
-RUN cargo build --release --bin zero2prod
+RUN cargo build --release --bin portfoliostr
 
 # --- Stage 3: Frontend builder ---
 FROM node:24-slim AS frontend-builder
@@ -34,10 +34,10 @@ RUN apt-get update -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /app/target/release/zero2prod zero2prod
+COPY --from=builder /app/target/release/portfoliostr portfoliostr
 COPY --from=frontend-builder /app/frontend/dist static
 COPY configuration configuration
 
 ENV APP_ENVIRONMENT=production
 ENV STATIC_FILES_DIR=/app/static
-ENTRYPOINT ["./zero2prod"]
+ENTRYPOINT ["./portfoliostr"]

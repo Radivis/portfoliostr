@@ -64,7 +64,7 @@ feature:
       - path: /
       - file: frontend/src/pages/Home.tsx
       - visible_elements:
-        - title: "zero2prod-axum"
+        - title: "Portfoliostr"
         - subscription form (SubscribeForm component):
           - legend: "Subscribe to the newsletter to receive updates on this project"
           - form fields:

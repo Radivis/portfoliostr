@@ -5,10 +5,10 @@ use sqlx::PgPool;
 use std::sync::LazyLock;
 use uuid::Uuid;
 use wiremock::MockServer;
-use zero2prod::configuration::get_configuration;
-use zero2prod::email_client::EmailClient;
-use zero2prod::issue_delivery_worker::{ExecutionOutcome, try_execute_task};
-use zero2prod::startup::Application;
+use portfoliostr::configuration::get_configuration;
+use portfoliostr::email_client::EmailClient;
+use portfoliostr::issue_delivery_worker::{ExecutionOutcome, try_execute_task};
+use portfoliostr::startup::Application;
 
 #[derive(Debug)]
 pub struct TestApp {

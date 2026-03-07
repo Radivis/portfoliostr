@@ -2,10 +2,10 @@
 set -eo pipefail
 
 # Find Redis containers
-CONTAINERS=$(docker ps -a --filter "name=zero2prod-axum-redis" --format "{{.ID}}")
+CONTAINERS=$(docker ps -a --filter "name=portfoliostr-redis" --format "{{.ID}}")
 
 if [[ -z "$CONTAINERS" ]]; then
-  echo "No zero2prod-axum-redis containers found"
+  echo "No portfoliostr-redis containers found"
   exit 0
 fi
 

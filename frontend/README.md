@@ -1,6 +1,6 @@
-# Zero2Prod Frontend
+# Portfoliostr Frontend
 
-React + TypeScript frontend for the Zero2Prod newsletter application.
+React + TypeScript frontend for the Portfoliostr CMS application.
 
 ## Tech Stack
 

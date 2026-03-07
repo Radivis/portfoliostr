@@ -2,9 +2,9 @@
 set -eo pipefail
 
 # Find Loki containers
-LOKI_CONTAINERS=$(docker ps -a --filter "name=zero2prod-axum-loki" --format "{{.ID}}")
-PROMTAIL_CONTAINERS=$(docker ps -a --filter "name=zero2prod-axum-promtail" --format "{{.ID}}")
-GRAFANA_CONTAINERS=$(docker ps -a --filter "name=zero2prod-axum-grafana" --format "{{.ID}}")
+LOKI_CONTAINERS=$(docker ps -a --filter "name=portfoliostr-loki" --format "{{.ID}}")
+PROMTAIL_CONTAINERS=$(docker ps -a --filter "name=portfoliostr-promtail" --format "{{.ID}}")
+GRAFANA_CONTAINERS=$(docker ps -a --filter "name=portfoliostr-grafana" --format "{{.ID}}")
 
 ALL_CONTAINERS="${LOKI_CONTAINERS} ${PROMTAIL_CONTAINERS} ${GRAFANA_CONTAINERS}"
 ALL_CONTAINERS=$(echo "$ALL_CONTAINERS" | xargs)  # Trim whitespace

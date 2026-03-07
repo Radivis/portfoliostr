@@ -13,6 +13,6 @@ fi
 docker run \
   -p "6379:6379" \
   -d \
-  --name "zero2prod-axum-redis_$(date '+%s')" \
+  --name "portfoliostr-redis_$(date '+%s')" \
   redis:7
 >&2 echo "Redis is ready to go!"

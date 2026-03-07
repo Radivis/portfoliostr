@@ -6,8 +6,8 @@ use tracing_appender::non_blocking::{NonBlocking, WorkerGuard};
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate, Times};
 
-use zero2prod::configuration::DatabaseSettings;
-use zero2prod::telemetry::{get_subscriber, init_subscriber};
+use portfoliostr::configuration::DatabaseSettings;
+use portfoliostr::telemetry::{get_subscriber, init_subscriber};
 
 // This holds the guard for the entire lifetime of the test process
 static LOG_GUARD: Lazy<Mutex<Option<WorkerGuard>>> = Lazy::new(|| Mutex::new(None));
@@ -148,7 +148,7 @@ pub fn assert_subscription_confirm_redirect(response: &reqwest::Response) {
             .headers()
             .get("location")
             .and_then(|v| v.to_str().ok()),
-        Some(zero2prod::routes::constants::SUBSCRIPTION_CONFIRMED_REDIRECT_PATH)
+        Some(portfoliostr::routes::constants::SUBSCRIPTION_CONFIRMED_REDIRECT_PATH)
     );
 }
 

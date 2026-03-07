@@ -4,7 +4,7 @@
 dir = "target/nextest"
 
 [[profile.default.overrides]]
-filter = "test(^zero2prod::)"
+filter = "test(^portfoliostr::)"
 
 [profile.ci]
 junit = { path = "target/nextest/junit.xml" }

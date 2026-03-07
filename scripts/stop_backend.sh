@@ -2,10 +2,10 @@
 set -eo pipefail
 
 # Find backend containers
-CONTAINERS=$(docker ps -a --filter "name=zero2prod-axum-backend" --format "{{.ID}}")
+CONTAINERS=$(docker ps -a --filter "name=portfoliostr-backend" --format "{{.ID}}")
 
 if [[ -z "$CONTAINERS" ]]; then
-  echo "No zero2prod-axum-backend containers found"
+  echo "No portfoliostr-backend containers found"
   exit 0
 fi
 

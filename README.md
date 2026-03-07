@@ -1,7 +1,7 @@
-# zero2prod-axum
-Template app based on the book "Zero To Production in Rust" by Luca Palmieri with Axum instead of actix-web.
+# Portfoliostr
+A lightweight web CMS for making simple portfolio pages* and cross-posting* to blog, mailing lists, and socials* like X* and Nostr*
 
-In this context "template app" means that this repo is intended to be a conventient "starter package" for more specific apps using a Rust + Axum + React or similar stack.
+* Feature is planned, but not implemented, yet.
 
 ## Deployment
 
@@ -30,7 +30,7 @@ The app is fully Dockerized and can run on any VPS or machine with Docker and Do
 
 This brings up seven containers:
 - **caddy** -- reverse proxy with automatic HTTPS via Let's Encrypt
-- **zero2prod** -- the Rust API server, also serving the React SPA
+- **portfoliostr** -- the Rust API server, also serving the React SPA
 - **postgres** -- PostgreSQL 16 database (data persisted in a Docker volume)
 - **valkey** -- Valkey 8 for session storage (data persisted in a Docker volume)
 - **loki** -- Log aggregation and storage (data persisted in a Docker volume)
@@ -51,13 +51,13 @@ When deployed via Docker Compose, Grafana is automatically available through Cad
 - Navigate to **Explore** and use LogQL queries:
   ```logql
   # All API logs
-  {compose_service="zero2prod"}
+  {compose_service="portfoliostr"}
   
   # Filter by log level
-  {compose_service="zero2prod"} | json | level="ERROR"
+  {compose_service="portfoliostr"} | json | level="ERROR"
   
   # Search in log messages
-  {compose_service="zero2prod"} |= "database"
+  {compose_service="portfoliostr"} |= "database"
   ```
 
 **Log Retention**: Logs are retained for 31 days by default (configurable in `loki-config.yaml`)
@@ -184,16 +184,16 @@ For a better log viewing experience during local development:
 4. Query your application logs using LogQL:
    ```logql
    # All logs from your dev containers
-   {container_name=~".*zero2prod-axum.*"}
+   {container_name=~".*portfoliostr.*"}
    
    # Only errors
-   {container_name=~".*zero2prod-axum.*"} | json | level="ERROR"
+   {container_name=~".*portfoliostr.*"} | json | level="ERROR"
    
    # Search for specific text
-   {container_name=~".*zero2prod-axum.*"} |= "subscription"
+   {container_name=~".*portfoliostr.*"} |= "subscription"
    
    # Filter by extracted JSON fields
-   {container_name=~".*zero2prod-axum.*"} | json | status_code >= 400
+   {container_name=~".*portfoliostr.*"} | json | status_code >= 400
    ```
 
 5. Use **Live** mode (button in top right) for real-time log streaming

@@ -2,10 +2,10 @@
 set -eo pipefail
 
 # Find Postgres containers
-CONTAINERS=$(docker ps -a --filter "name=zero2prod-axum-postgres" --format "{{.ID}}")
+CONTAINERS=$(docker ps -a --filter "name=portfoliostr-postgres" --format "{{.ID}}")
 
 if [[ -z "$CONTAINERS" ]]; then
-  echo "No zero2prod-axum-postgres containers found"
+  echo "No portfoliostr-postgres containers found"
   exit 0
 fi
 

@@ -39,7 +39,7 @@ function Home() {
             mb: 4,
           }}
         >
-          zero2prod-axum
+          portfoliostr
         </Typography>
 
         <Typography variant="body1" sx={{ ...bodyParagraphSx, mb: 2 }}>

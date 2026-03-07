@@ -129,7 +129,7 @@ impl Application {
         #[derive(OpenApi)]
         #[openapi(
             info(
-                title = "Zero2Prod API",
+                title = "Portfoliostr API",
                 version = "1.0.0",
                 description = "Newsletter subscription and blog management API"
             ),

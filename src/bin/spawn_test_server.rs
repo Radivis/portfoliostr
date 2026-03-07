@@ -5,7 +5,7 @@
 #[cfg(feature = "e2e-tests")]
 use std::io::{self, Write};
 #[cfg(feature = "e2e-tests")]
-use zero2prod::test_support::spawn_app;
+use portfoliostr::test_support::spawn_app;
 
 #[cfg(feature = "e2e-tests")]
 #[tokio::main]

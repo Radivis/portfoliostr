@@ -3,9 +3,9 @@ set -x
 set -eo pipefail
 
 # Check if backend container is already running
-RUNNING_BACKEND=$(docker ps --filter 'name=zero2prod-axum-backend' --format '{{.ID}}')
+RUNNING_BACKEND=$(docker ps --filter 'name=portfoliostr-backend' --format '{{.ID}}')
 if [[ -n $RUNNING_BACKEND ]]; then
-  echo >&2 "There is a zero2prod-axum-backend container already running, kill it with:"
+  echo >&2 "There is a portfoliostr-backend container already running, kill it with:"
   echo >&2 "    docker kill ${RUNNING_BACKEND}"
   exit 1
 fi
@@ -15,22 +15,22 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # Check if the Docker image exists, if not build it
-IMAGE_EXISTS=$(docker images -q zero2prod:dev 2> /dev/null)
+IMAGE_EXISTS=$(docker images -q portfoliostr:dev 2> /dev/null)
 if [[ -z "$IMAGE_EXISTS" ]]; then
-  echo >&2 "Docker image 'zero2prod:dev' not found. Building..."
+  echo >&2 "Docker image 'portfoliostr:dev' not found. Building..."
   cd "${PROJECT_ROOT}"
-  docker build -t zero2prod:dev .
+  docker build -t portfoliostr:dev .
   echo >&2 "Build complete!"
 else
-  echo >&2 "Using existing Docker image 'zero2prod:dev'"
-  echo >&2 "To rebuild, run: docker build -t zero2prod:dev ."
+  echo >&2 "Using existing Docker image 'portfoliostr:dev'"
+  echo >&2 "To rebuild, run: docker build -t portfoliostr:dev ."
 fi
 
 # Launch the backend container
-echo >&2 "Starting zero2prod-axum backend in Docker..."
+echo >&2 "Starting portfoliostr backend in Docker..."
 docker run \
   -d \
-  --name "zero2prod-axum-backend_$(date '+%s')" \
+  --name "portfoliostr-backend_$(date '+%s')" \
   -p "8000:8000" \
   -e "APP_ENVIRONMENT=local" \
   -e "APP_APPLICATION__HOST=0.0.0.0" \
@@ -46,7 +46,7 @@ docker run \
   -e "APP_EMAIL_CLIENT__AUTHORIZATION_TOKEN=fake-token-for-dev" \
   -e "APP_REDIS_URI=redis://host.docker.internal:6379" \
   --add-host=host.docker.internal:host-gateway \
-  zero2prod:dev
+  portfoliostr:dev
 
 # Wait for the backend to be ready
 echo >&2 "Waiting for backend to be ready..."
@@ -55,7 +55,7 @@ ELAPSED=0
 until curl -s http://localhost:8000/health_check > /dev/null 2>&1; do
   if [ $ELAPSED -ge $TIMEOUT ]; then
     echo >&2 "ERROR: Backend failed to start within ${TIMEOUT} seconds"
-    echo >&2 "Check logs with: docker logs \$(docker ps --filter 'name=zero2prod-axum-backend' --format '{{.ID}}')"
+    echo >&2 "Check logs with: docker logs \$(docker ps --filter 'name=portfoliostr-backend' --format '{{.ID}}')"
     exit 1
   fi
   sleep 2
@@ -77,7 +77,7 @@ echo >&2 ""
 echo >&2 "To view logs in Grafana:"
 echo >&2 "  1. Start logging stack: ./scripts/init_loki.sh"
 echo >&2 "  2. Open http://localhost:3200"
-echo >&2 "  3. Query: {container_name=~\".*zero2prod-axum-backend.*\"}"
+echo >&2 "  3. Query: {container_name=~\".*portfoliostr-backend.*\"}"
 echo >&2 ""
-echo >&2 "Container name: $(docker ps --filter 'name=zero2prod-axum-backend' --format '{{.Names}}')"
+echo >&2 "Container name: $(docker ps --filter 'name=portfoliostr-backend' --format '{{.Names}}')"
 echo >&2 ""

@@ -82,7 +82,7 @@ pub mod function_name_macro {
 
                                 // Look for test functions - they can be in various formats:
                                 // - "api::module::function_name" (mangled test binary)
-                                // - "zero2prod::tests::api::module::function_name" (unmangled)
+                                // - "portfoliostr::tests::api::module::function_name" (unmangled)
                                 // We want to find functions that are NOT closures, helpers, or internal symbols
                                 let is_test_function = (name_str.contains("api::") && !name_str.contains("helpers::"))
                                     || name_str.contains("tests::api")

@@ -1,7 +1,7 @@
 [package]
-name = "zero2prod"
+name = "portfoliostr"
 version = "0.1.0"
-default-run = "zero2prod"
+default-run = "portfoliostr"
 authors = ["Michael Hrenka <radivis@radivis.com>"]
 edition = "2024"
 license = "MIT"
